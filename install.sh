@@ -22,6 +22,8 @@ done
 
 echo "==> Installing Tobii Stream Engine 3.0.4 (client library + headers)"
 $SUDO install -D -m 0755 "$V/stream_engine/lib/x64/libtobii_stream_engine.so" /usr/local/lib64/tobii/libtobii_stream_engine.so
+# Needed for dlopen() (Python ctypes, etc.) on glibc >= 2.41; see the script.
+$SUDO python3 -I "$ROOT/scripts/clear-execstack.py" /usr/local/lib64/tobii/libtobii_stream_engine.so
 $SUDO install -d -m 0755 /usr/local/include/tobii
 $SUDO install -m 0644 "$V"/stream_engine/include/tobii/*.h /usr/local/include/tobii/
 $SUDO install -D -m 0644 "$ROOT/tobii-stream-engine.pc.in" /usr/local/lib64/pkgconfig/tobii-stream-engine.pc

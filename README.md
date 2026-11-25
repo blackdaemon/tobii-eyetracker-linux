@@ -55,6 +55,51 @@ cc myapp.c $(PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig pkg-config --cflags --li
 
 The Stream Engine API reference is in `vendor/stream_engine/tobii_stream_engine_api.pdf`.
 
+### Python
+
+`examples/python/tobii_stream.py` is a dependency-free `ctypes` binding (one file, copy it into your project):
+
+```python
+from tobii_stream import EyeTracker
+
+with EyeTracker() as et:
+    for t_us, x, y in et.gaze():          # blocking generator, ~90 Hz
+        print(x, y)
+```
+
+For GUI and game loops, run the tracker in a background thread and poll the latest sample:
+
+```python
+with EyeTracker() as et:
+    et.subscribe_eye_position(lambda t, left, right: ...)   # optional; subscribe first
+    q = et.gaze_in_thread()                                  # queue holding the newest point
+    while running:
+        t_us, x, y = q.get()                                 # or q.get_nowait()
+```
+
+Gaze is `(0,0)` at the top-left and `(1,1)` at the bottom-right of the display area. Values slightly outside 0..1 mean you're looking just off-screen. Eye positions are in mm in tracker coordinates (x right, y up, z towards you). Set `TOBII_STREAM_ENGINE=/path/to/libtobii_stream_engine.so` to load a different copy of the library.
+
+> Tobii's library is marked as needing an executable stack, and glibc ≥ 2.41 refuses to `dlopen()` it ("cannot enable executable stack"). `install.sh` clears that flag on the installed copy with `scripts/clear-execstack.py`. Programs that link the library at build time (C, Rust) aren't affected.
+
+### Rust
+
+`examples/rust` is a small crate with no dependencies. It has a safe wrapper with RAII cleanup and closures for callbacks:
+
+```toml
+[dependencies]
+tobii-stream-engine = { path = "/path/to/tobii-eyetracker-linux/examples/rust" }
+```
+
+```rust
+let api = tobii_stream_engine::Api::new()?;
+let mut dev = api.connect_first()?;
+dev.subscribe_gaze(|g| println!("{} {:.3} {:.3}", g.timestamp_us, g.x, g.y))?;
+dev.subscribe_eye_position(|e| { /* e.left_mm / e.right_mm: Option<[f32; 3]> */ })?;
+loop { dev.process()?; }        // callbacks run inside process()
+```
+
+Try it with `cd examples/rust && cargo run --example gaze 5`. `build.rs` links `/usr/local/lib64/tobii` (override with `TOBII_LIB_DIR`) and embeds an rpath. `Device` isn't `Send`, because Stream Engine calls for one device must stay on one thread. To use gaze elsewhere, send samples from the callback over a channel.
+
 ## Troubleshooting
 
 ```bash

@@ -2,3 +2,7 @@
 /build/
 /tools/tobii-gaze
 /tools/tobii-setup
+/examples/rust/target/
+/examples/rust/Cargo.lock
+__pycache__/
+/.idea/

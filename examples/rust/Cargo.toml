@@ -1,0 +1,9 @@
+[package]
+name = "tobii-stream-engine"
+version = "0.1.0"
+edition = "2021"
+description = "Minimal safe Rust wrapper for Tobii Stream Engine 3.0.4 (Linux, IS4 trackers)"
+license = "MIT"
+links = "tobii_stream_engine"
+
+[dependencies]
