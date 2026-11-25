@@ -1,0 +1,9 @@
+prefix=/usr/local
+libdir=${prefix}/lib64/tobii
+includedir=${prefix}/include
+
+Name: tobii-stream-engine
+Description: Tobii Stream Engine client library (proprietary, Linux 3.0.4)
+Version: 3.0.4
+Libs: -L${libdir} -Wl,-rpath,${libdir} -ltobii_stream_engine -lpthread
+Cflags: -I${includedir}

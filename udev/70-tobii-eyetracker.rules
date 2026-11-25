@@ -1,0 +1,9 @@
+# Tobii Technology AB eye trackers (vendor 0x2104).
+# The proprietary tobiiusbserviced (root) owns the USB device; applications talk
+# to it over a local socket, so no world-writable device node is required.
+# Start the service automatically when a tracker is plugged in.
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2104", \
+  TAG+="systemd", ENV{SYSTEMD_WANTS}+="tobiiusb.service"
+# Keep the tracker from being autosuspended (it otherwise stops streaming).
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2104", \
+  TEST=="power/control", ATTR{power/control}="on"

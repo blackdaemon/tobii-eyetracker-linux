@@ -1,0 +1,17 @@
+[Unit]
+Description=Tobii USB host service (IS4/IS5 eye trackers)
+Documentation=file:///usr/local/share/doc/tobii-eyetracker-linux/README.md
+After=systemd-udevd.service
+
+[Service]
+# tobiiusbserviced always forks and writes /var/run/tobiiusb/tobiiusbservice.pid
+Type=forking
+RuntimeDirectory=tobiiusb
+RuntimeDirectoryPreserve=no
+PIDFile=/run/tobiiusb/tobiiusbservice.pid
+ExecStart=/usr/local/sbin/tobiiusbserviced
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
